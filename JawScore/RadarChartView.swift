@@ -5,6 +5,7 @@ struct RadarChartView: View {
     var tint: Color = .jsTeal
     var fillOpacity: Double = 0.18
     var axisLabels: [String] = []
+    var hidesNumbers: Bool = false
 
     var body: some View {
         Canvas { context, size in
@@ -72,6 +73,7 @@ struct RadarChartView: View {
     }
 
     private var accessibilitySummary: String {
+        if hidesNumbers { return "Scores hidden" }
         let names = axisLabels.isEmpty ? DimensionCopy.dimensionNames : axisLabels
         return zip(names, values).map { "\($0.0) \(String(format: "%.1f", $0.1))" }.joined(separator: ", ")
     }

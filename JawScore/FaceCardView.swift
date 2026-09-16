@@ -24,7 +24,7 @@ struct FaceCardView: View {
                     .foregroundStyle(.white)
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
-                RadarChartView(values: result.dimensionList.map { $0.value })
+                RadarChartView(values: result.dimensionList.map { $0.value }, hidesNumbers: numbersOff)
                     .frame(height: 150)
             } else {
                 Text(numbersOff ? "•••" : "—")

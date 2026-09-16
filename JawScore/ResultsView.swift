@@ -62,7 +62,6 @@ struct ResultsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             guard !heroPopped else { return }
-            heroPopped = true
             UINotificationFeedbackGenerator().notificationOccurred(.success)
             withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
                 heroPopped = true
@@ -199,7 +198,7 @@ struct ResultsView: View {
             Text("Balance")
                 .font(.title3.weight(.bold))
                 .frame(maxWidth: .infinity, alignment: .leading)
-            RadarChartView(values: result.dimensionList.map { $0.value }, axisLabels: DimensionCopy.dimensionNames)
+            RadarChartView(values: result.dimensionList.map { $0.value }, axisLabels: DimensionCopy.dimensionNames, hidesNumbers: numbersOff)
                 .frame(height: 240)
         }
         .padding(16)

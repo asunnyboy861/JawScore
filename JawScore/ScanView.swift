@@ -21,6 +21,7 @@ final class ScanViewModel: ObservableObject {
     @Published var photoError: String?
     @Published var isProcessingPhoto = false
     @Published var lastCapturedImage: UIImage?
+    @Published var manualPhotoMode = false
 
     let session = FaceScanSession()
     private let purchaseManager = PurchaseManager.shared
@@ -44,6 +45,7 @@ final class ScanViewModel: ObservableObject {
 
     func beginScan() {
         photoError = nil
+        manualPhotoMode = false
         guard FreeScanCounter.canScan(isPro: isPro) else {
             phase = .limitReached
             return
@@ -56,6 +58,17 @@ final class ScanViewModel: ObservableObject {
         } else {
             phase = .scanning
         }
+    }
+
+    func startPhotoMode() {
+        photoError = nil
+        guard FreeScanCounter.canScan(isPro: isPro) else {
+            phase = .limitReached
+            return
+        }
+        session.stop()
+        manualPhotoMode = true
+        phase = .scanning
     }
 
     func handleCapture(_ measurement: FaceMeasurement, quality: Int) {
@@ -83,7 +96,9 @@ final class ScanViewModel: ObservableObject {
                 return
             }
             do {
-                let outcome = try PhotoScanService.process(image: image)
+                let outcome = try await Task.detached(priority: .userInitiated) {
+                    try PhotoScanService.process(image: image)
+                }.value
                 lastCapturedImage = outcome.image
                 FreeScanCounter.recordScan()
                 Task { await NotificationService.scheduleWeeklyRescan() }
@@ -96,6 +111,7 @@ final class ScanViewModel: ObservableObject {
 
     func backToIdle() {
         session.stop()
+        manualPhotoMode = false
         phase = .idle
     }
 }
@@ -104,6 +120,7 @@ struct ScanView: View {
     @Environment(\.modelContext) private var modelContext
     @StateObject private var viewModel = ScanViewModel()
     @EnvironmentObject private var router: TabRouter
+    @AppStorage(AppSettings.numbersOffKey) private var numbersOff = false
 
     var body: some View {
         NavigationStack {
@@ -112,10 +129,11 @@ struct ScanView: View {
                 case .idle:
                     idleStage
                 case .scanning:
-                    if viewModel.usesAR {
+                    if viewModel.usesAR && !viewModel.manualPhotoMode {
                         ARScanStage(
                             session: viewModel.session,
-                            onCancel: { viewModel.backToIdle() }
+                            onCancel: { viewModel.backToIdle() },
+                            onPhotoFallback: { viewModel.startPhotoMode() }
                         )
                         .onReceive(viewModel.session.$capturedMeasurement) { measurement in
                             if let measurement {
@@ -126,7 +144,7 @@ struct ScanView: View {
                         photoStage
                     }
                 case .decoding(let measurement, let quality):
-                    DecodingView(measurement: measurement, quality: quality) {
+                    DecodingView(measurement: measurement, quality: quality, numbersOff: numbersOff) {
                         viewModel.completeDecoding(measurement, quality: quality, context: modelContext)
                     }
                 case .results(let record):
@@ -176,6 +194,18 @@ struct ScanView: View {
                 .tint(Color.jsTeal)
                 .foregroundStyle(.black)
                 .accessibilityLabel("Start face scan")
+
+                Button {
+                    viewModel.startPhotoMode()
+                } label: {
+                    Label("Import Photo", systemImage: "photo.on.rectangle")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 6)
+                }
+                .buttonStyle(.bordered)
+                .tint(Color.jsTeal)
+                .accessibilityLabel("Import a portrait photo instead")
 
                 Text("1 free full scan every day. Scoring runs entirely on your device.")
                     .font(.footnote)
@@ -288,7 +318,8 @@ struct PhotoPickerButton: View {
 struct ARScanStage: View {
     @ObservedObject var session: FaceScanSession
     let onCancel: () -> Void
-    @AppStorage(AppSettings.numbersOffKey) private var numbersOff = false
+    let onPhotoFallback: () -> Void
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         ZStack {
@@ -301,14 +332,69 @@ struct ARScanStage: View {
                     .accessibilityLabel("Capture quality")
                     .accessibilityValue("\(Int(session.quality.total)) percent")
                 Spacer()
-                GuidanceOverlay(sample: session.quality)
-                    .padding(.bottom, 28)
+                if session.cameraDenied {
+                    deniedCard
+                        .padding(.bottom, 28)
+                } else {
+                    GuidanceOverlay(sample: session.quality)
+                        .padding(.bottom, 28)
+                }
                 Button("Cancel", action: onCancel)
                     .foregroundStyle(.white)
                     .padding(.bottom, 12)
                     .accessibilityLabel("Cancel scan")
             }
         }
+        .onAppear {
+            session.start()
+        }
+        .onDisappear {
+            session.stop()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            switch newPhase {
+            case .active:
+                session.start()
+            default:
+                session.stop()
+            }
+        }
+    }
+
+    private var deniedCard: some View {
+        VStack(spacing: 14) {
+            Image(systemName: "video.slash")
+                .font(.system(size: 40))
+                .foregroundStyle(Color.jsOrange)
+                .accessibilityHidden(true)
+            Text("Camera access is off")
+                .font(.headline)
+            Text("JawScore needs the camera for the 3D scan. Enable it in Settings, or import a portrait photo instead — everything stays on your device.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+            Button {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            } label: {
+                Label("Open Settings", systemImage: "gear")
+                    .font(.subheadline.weight(.semibold))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 6)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(Color.jsTeal)
+            .foregroundStyle(.black)
+            .accessibilityLabel("Open Settings to enable the camera")
+            Button("Import a Photo Instead", action: onPhotoFallback)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(Color.jsTeal)
+                .accessibilityLabel("Import a portrait photo instead")
+        }
+        .padding(20)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .padding(.horizontal, 24)
     }
 }
 

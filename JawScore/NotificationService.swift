@@ -15,7 +15,7 @@ enum NotificationService {
         let center = UNUserNotificationCenter.current()
         center.removePendingNotificationRequests(withIdentifiers: [rescanIdentifier])
         let content = UNMutableNotificationContent()
-        content.title = "Time for your weekly rescan 📈"
+        content.title = "Time for your weekly rescan"
         content.body = "See how your scores moved this week."
         content.sound = .default
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 7 * 24 * 60 * 60, repeats: false)

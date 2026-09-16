@@ -3,6 +3,7 @@ import SwiftUI
 struct DecodingView: View {
     let measurement: FaceMeasurement
     let quality: Int
+    var numbersOff: Bool = false
     let onComplete: () -> Void
 
     @State private var revealed = 0
@@ -52,7 +53,7 @@ struct DecodingView: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
-            Text(formatValue(value))
+            Text(numbersOff && name == "Capture Quality" ? "•••" : formatValue(value))
                 .font(.caption.weight(.semibold).monospacedDigit())
                 .foregroundStyle(revealed ? Color.jsTeal : Color.secondary.opacity(0.3))
         }

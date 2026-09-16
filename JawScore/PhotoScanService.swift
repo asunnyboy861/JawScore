@@ -13,6 +13,7 @@ struct PhotoScanOutcome {
 enum PhotoScanServiceError: LocalizedError {
     case invalidImage
     case noFaceDetected
+    case lowQuality
 
     var errorDescription: String? {
         switch self {
@@ -20,13 +21,16 @@ enum PhotoScanServiceError: LocalizedError {
             return "That image could not be read. Try another photo."
         case .noFaceDetected:
             return "No face found. Choose a clear, front-facing portrait."
+        case .lowQuality:
+            return "This photo was too dark, too far, or too tilted to read reliably. Try a brighter, front-facing portrait."
         }
     }
 }
 
-enum PhotoScanService {
+nonisolated enum PhotoScanService {
     static func process(image: UIImage) throws -> PhotoScanOutcome {
-        guard let cgImage = image.cgImage else { throw PhotoScanServiceError.invalidImage }
+        let upright = normalizedImage(image)
+        guard let cgImage = upright.cgImage else { throw PhotoScanServiceError.invalidImage }
         let request = VNDetectFaceLandmarksRequest()
         let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
         do {
@@ -41,6 +45,9 @@ enum PhotoScanService {
         let built = buildCanonical(face: face, landmarks: landmarks, imageSize: imageSize)
         let pixelStats = PixelStatsCalculator.compute(from: cgImage)
         let qualitySample = photoQuality(face: face, imageSize: imageSize, brightnessMean: pixelStats.brightnessMean)
+        guard qualitySample.total >= AestheticConstants.qualityAutoCaptureThreshold else {
+            throw PhotoScanServiceError.lowQuality
+        }
         let measurement = GeometryExtractor.extract(
             canonical: built.landmarks,
             jawArcLeft: built.arcLeft,
@@ -49,7 +56,49 @@ enum PhotoScanService {
             pixelStats: pixelStats,
             quality: qualitySample
         )
-        return PhotoScanOutcome(measurement: measurement, quality: Int(qualitySample.total.rounded()), image: image)
+        return PhotoScanOutcome(measurement: measurement, quality: Int(qualitySample.total.rounded()), image: upright)
+    }
+
+    private static func normalizedImage(_ image: UIImage) -> UIImage {
+        guard image.imageOrientation != .up, let cgImage = image.cgImage else { return image }
+        var transform = CGAffineTransform.identity
+        switch image.imageOrientation {
+        case .down, .downMirrored:
+            transform = transform.translatedBy(x: CGFloat(cgImage.width), y: CGFloat(cgImage.height)).rotated(by: .pi)
+        case .left, .leftMirrored:
+            transform = transform.translatedBy(x: CGFloat(cgImage.width), y: 0).rotated(by: .pi / 2)
+        case .right, .rightMirrored:
+            transform = transform.translatedBy(x: 0, y: CGFloat(cgImage.height)).rotated(by: -.pi / 2)
+        default:
+            break
+        }
+        switch image.imageOrientation {
+        case .upMirrored, .downMirrored:
+            transform = transform.translatedBy(x: CGFloat(cgImage.width), y: 0).scaledBy(x: -1, y: 1)
+        case .leftMirrored, .rightMirrored:
+            transform = transform.translatedBy(x: CGFloat(cgImage.height), y: 0).scaledBy(x: -1, y: 1)
+        default:
+            break
+        }
+        let colorSpace = cgImage.colorSpace ?? CGColorSpaceCreateDeviceRGB()
+        guard let context = CGContext(
+            data: nil,
+            width: cgImage.width,
+            height: cgImage.height,
+            bitsPerComponent: 8,
+            bytesPerRow: 0,
+            space: colorSpace,
+            bitmapInfo: cgImage.bitmapInfo.rawValue
+        ) else { return image }
+        context.concatenate(transform)
+        switch image.imageOrientation {
+        case .left, .leftMirrored, .right, .rightMirrored:
+            context.draw(cgImage, in: CGRect(x: 0, y: 0, width: cgImage.height, height: cgImage.width))
+        default:
+            context.draw(cgImage, in: CGRect(x: 0, y: 0, width: cgImage.width, height: cgImage.height))
+        }
+        guard let normalized = context.makeImage() else { return image }
+        return UIImage(cgImage: normalized)
     }
 
     private static func photoQuality(face: VNFaceObservation, imageSize: CGSize, brightnessMean: Double) -> CaptureQualitySample {

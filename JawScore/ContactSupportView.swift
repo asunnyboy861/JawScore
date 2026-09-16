@@ -96,6 +96,7 @@ struct ContactSupportView: View {
         .preferredColorScheme(.dark)
         .navigationTitle("Contact Support")
         .navigationBarTitleDisplayMode(.inline)
+        .scrollDismissesKeyboard(.interactively)
     }
 
     private var subjectGrid: some View {

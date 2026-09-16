@@ -53,6 +53,7 @@ nonisolated enum AestheticConstants {
     static let qualityLightWeight = 35.0
     static let qualityPoseWeight = 25.0
     static let qualityAutoCaptureThreshold = 70.0
+    static let qualityCaptureWindowSeconds: TimeInterval = 1.2
 
     static let overallJawWeight = 0.35
     static let overallSymmetryWeight = 0.35

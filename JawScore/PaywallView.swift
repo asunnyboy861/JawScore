@@ -24,6 +24,11 @@ struct PaywallView: View {
             .preferredColorScheme(.dark)
             .navigationTitle("JawScore Pro")
             .navigationBarTitleDisplayMode(.inline)
+            .task {
+                if purchaseManager.products.isEmpty {
+                    await purchaseManager.loadProducts()
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
@@ -129,7 +134,8 @@ struct PaywallView: View {
     @ViewBuilder
     private func trialHint(for product: Product) -> some View {
         if product.id == PurchaseManager.monthlyID || product.id == PurchaseManager.annualID {
-            Text("7-day free trial, then \(product.displayPrice) per period.")
+            let cadence = product.id == PurchaseManager.monthlyID ? "per month" : "per year"
+            Text("7-day free trial, then \(product.displayPrice) \(cadence).")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         } else if product.id == PurchaseManager.lifetimeID {

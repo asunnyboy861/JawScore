@@ -1,4 +1,5 @@
 import ARKit
+import AVFoundation
 import Combine
 import CoreImage
 import Foundation
@@ -106,6 +107,7 @@ final class FaceScanSession: NSObject, ObservableObject {
     @Published var capturedMeasurement: FaceMeasurement?
     @Published var capturedQuality = 0
     @Published var capturedPreview: UIImage?
+    @Published var cameraDenied = false
 
     weak var meshRenderer: FaceMeshRendering?
 
@@ -116,9 +118,15 @@ final class FaceScanSession: NSObject, ObservableObject {
     private var bestPixelStats = PixelStatsCalculator.neutral()
     private var bestQuality: CaptureQualitySample?
     private var hasAutoCaptured = false
+    private var captureDeadline: Date?
 
     var supportsFaceTracking: Bool {
         ARFaceTrackingConfiguration.isSupported
+    }
+
+    static var cameraPermissionDenied: Bool {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        return status == .denied || status == .restricted
     }
 
     func attach(_ session: ARSession) {
@@ -128,6 +136,11 @@ final class FaceScanSession: NSObject, ObservableObject {
 
     func start() {
         guard supportsFaceTracking, let session = arSession else { return }
+        if Self.cameraPermissionDenied {
+            cameraDenied = true
+            return
+        }
+        cameraDenied = false
         reset()
         let configuration = ARFaceTrackingConfiguration()
         configuration.isLightEstimationEnabled = true
@@ -146,6 +159,7 @@ final class FaceScanSession: NSObject, ObservableObject {
         bestPixelStats = PixelStatsCalculator.neutral()
         bestQuality = nil
         hasAutoCaptured = false
+        captureDeadline = nil
         capturedMeasurement = nil
         capturedQuality = 0
         capturedPreview = nil
@@ -195,11 +209,22 @@ extension FaceScanSession: ARSessionDelegate {
                 self.bestPixelStats = pixelStats
                 self.bestQuality = sample
             }
-            if !self.hasAutoCaptured,
-               sample.total >= AestheticConstants.qualityAutoCaptureThreshold,
-               self.bestQuality != nil {
-                self.hasAutoCaptured = true
-                self.finalizeCapture(previewBuffer: frame.capturedImage)
+            guard !self.hasAutoCaptured else { return }
+            if let deadline = self.captureDeadline {
+                if Date() >= deadline {
+                    if self.bestQuality?.total ?? 0 >= AestheticConstants.qualityAutoCaptureThreshold {
+                        self.finalizeCapture(previewBuffer: frame.capturedImage)
+                        if self.capturedMeasurement != nil {
+                            self.hasAutoCaptured = true
+                        } else {
+                            self.captureDeadline = Date().addingTimeInterval(AestheticConstants.qualityCaptureWindowSeconds)
+                        }
+                    } else {
+                        self.captureDeadline = nil
+                    }
+                }
+            } else if sample.total >= AestheticConstants.qualityAutoCaptureThreshold {
+                self.captureDeadline = Date().addingTimeInterval(AestheticConstants.qualityCaptureWindowSeconds)
             }
         }
     }
@@ -207,6 +232,9 @@ extension FaceScanSession: ARSessionDelegate {
     nonisolated func session(_ session: ARSession, didFailWithError error: Error) {
         Task { @MainActor in
             self.isTracking = false
+            if let arError = error as? ARError, arError.code == .cameraUnauthorized {
+                self.cameraDenied = true
+            }
         }
     }
 

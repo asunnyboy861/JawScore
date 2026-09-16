@@ -72,11 +72,15 @@ final class PurchaseManager: ObservableObject {
         let result = try await product.purchase()
         switch result {
         case .success(let verification):
-            if case .verified(let transaction) = verification {
+            switch verification {
+            case .verified(let transaction):
                 await transaction.finish()
+                await refreshEntitlements()
+                return true
+            case .unverified:
+                await refreshEntitlements()
+                return false
             }
-            await refreshEntitlements()
-            return true
         case .userCancelled, .pending:
             return false
         @unknown default:

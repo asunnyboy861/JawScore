@@ -227,7 +227,7 @@ struct CanonicalLandmarks {
     var nasion: simd_float3
 }
 
-enum GeometryExtractor {
+nonisolated enum GeometryExtractor {
     static func extract(
         vertices: [simd_float3],
         pixelStats: SkinPixelStats,

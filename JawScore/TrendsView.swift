@@ -4,6 +4,7 @@ import SwiftData
 struct TrendsView: View {
     @Query(sort: \ScoreRecord.date, order: .reverse) private var records: [ScoreRecord]
     @StateObject private var purchaseManager = PurchaseManager.shared
+    @EnvironmentObject private var router: TabRouter
     @AppStorage(AppSettings.numbersOffKey) private var numbersOff = false
 
     var body: some View {
@@ -59,6 +60,18 @@ struct TrendsView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
+            Button {
+                router.selection = .scan
+            } label: {
+                Label("Start your first scan", systemImage: "viewfinder")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 6)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(Color.jsTeal)
+            .foregroundStyle(.black)
+            .accessibilityLabel("Go to the scan tab")
         }
         .padding(24)
         .jsCard()
@@ -90,7 +103,7 @@ struct TrendsView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(record.date.formatted(date: .abbreviated, time: .shortened))
                     .font(.subheadline.weight(.semibold))
-                Text("Capture quality \(record.quality)%")
+                Text(numbersOff ? "Capture details hidden" : "Capture quality \(record.quality)%")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
