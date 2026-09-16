@@ -15,10 +15,10 @@
 
 | Page | URL | Status |
 |------|-----|--------|
-| Landing Page | https://asunnyboy861.github.io/JawScore/ | ⏳ Pending |
-| Support | https://asunnyboy861.github.io/JawScore/support.html | ⏳ Pending |
-| Privacy Policy | https://asunnyboy861.github.io/JawScore/privacy.html | ⏳ Pending |
-| Terms of Use | https://asunnyboy861.github.io/JawScore/terms.html | ⏳ Pending |
+| Landing Page | https://asunnyboy861.github.io/JawScore/ | ✅ Active |
+| Support | https://asunnyboy861.github.io/JawScore/support.html | ✅ Active |
+| Privacy Policy | https://asunnyboy861.github.io/JawScore/privacy.html | ✅ Active |
+| Terms of Use | https://asunnyboy861.github.io/JawScore/terms.html | ✅ Active |
 
 ## Repository Structure
 
