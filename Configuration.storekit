@@ -1,0 +1,138 @@
+{
+  "identifier" : "A1B2C3D4-5E6F-4A7B-8C9D-0E1F2A3B4C5D",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "59.99",
+      "familyShareable" : true,
+      "internalID" : "6A111111-1111-4111-8111-111111111111",
+      "localizations" : [
+        {
+          "description" : "All Pro features, forever. One purchase.",
+          "displayName" : "JawScore Pro Lifetime",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.zzoutuo.JawScore.pro.lifetime",
+      "referenceName" : "JawScore Pro Lifetime",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "19.99",
+      "familyShareable" : false,
+      "internalID" : "6A222222-2222-4222-8222-222222222222",
+      "localizations" : [
+        {
+          "description" : "Use your own DeepSeek API key for deep analysis.",
+          "displayName" : "JawScore BYO AI Unlock",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.zzoutuo.JawScore.byo.unlock",
+      "referenceName" : "JawScore BYO AI Unlock",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "JAWSCORE_PRO_GROUP_1",
+      "localizations" : [
+
+      ],
+      "name" : "JawScore Pro",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "4.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6A333333-3333-4333-8333-333333333333",
+          "introductoryOffer" : {
+            "internalID" : "6A343434-3434-4343-8343-343434343434",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
+          "localizations" : [
+            {
+              "description" : "All Pro features with 7-day free trial.",
+              "displayName" : "JawScore Pro Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.zzoutuo.JawScore.pro.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "JawScore Pro Monthly",
+          "subscriptionGroupID" : "JAWSCORE_PRO_GROUP_1",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "29.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6A444444-4444-4444-8444-444444444444",
+          "introductoryOffer" : {
+            "internalID" : "6A454545-4545-4545-8454-454545454545",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
+          "localizations" : [
+            {
+              "description" : "Best value — all Pro for a full year.",
+              "displayName" : "JawScore Pro Annual",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.zzoutuo.JawScore.pro.annual",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "JawScore Pro Annual",
+          "subscriptionGroupID" : "JAWSCORE_PRO_GROUP_1",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "2.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6A555555-5555-4555-8555-555555555555",
+          "localizations" : [
+            {
+              "description" : "All Pro features. Cancel anytime.",
+              "displayName" : "JawScore Pro Weekly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.zzoutuo.JawScore.pro.weekly",
+          "recurringSubscriptionPeriod" : "P1W",
+          "referenceName" : "JawScore Pro Weekly",
+          "subscriptionGroupID" : "JAWSCORE_PRO_GROUP_1",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}
