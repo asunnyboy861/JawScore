@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JawScore - Privacy</title>
+    <title>JawScore - Privacy Policy</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; color: #333; }
         h1 { color: #1a1a1a; border-bottom: 2px solid #eee; padding-bottom: 10px; }
@@ -14,36 +14,62 @@
         a:hover { text-decoration: underline; }
         ul, ol { padding-left: 20px; }
         li { margin-bottom: 8px; }
-        
+        .quote { background: #f0f7f7; border-left: 4px solid #14b8a6; padding: 12px 16px; margin: 12px 0; }
     </style>
 </head>
 <body>
 <h1>Privacy Policy</h1>
-    <p>Last updated: 2026-09-16</p>
-    
-    <h2>Information We Collect</h2>
-    <p>We collect minimal information necessary to provide our services:</p>
+    <p>Last updated: 2026-09-26</p>
+
+    <h2>1. Overview</h2>
+    <p>JawScore is an on-device face analysis app. It has no accounts, no servers, and no analytics or advertising SDKs. All face scanning, scoring, and history storage happen locally on your device. This policy explains exactly what face data the app processes, where it goes, and how long it is kept.</p>
+
+    <h2>2. Face Data — What the App Collects</h2>
+    <p>When you perform a 3D Scan (ARKit TrueDepth camera) or a Photo Scan (a portrait you choose from your photo library), the app processes camera frames or the selected photo <strong>in memory only</strong> to derive:</p>
     <ul>
-        <li>App usage data (anonymous)</li>
-        <li>Device information (for compatibility)</li>
-        <li>Crash reports (to improve stability)</li>
+        <li><strong>Facial geometry measurements</strong> — numerical values such as distances, ratios, and symmetry measures (48 measurements in total), computed by Apple's Vision and ARKit frameworks on your device;</li>
+        <li><strong>A capture-quality value</strong> — a number describing lighting and framing of the frame;</li>
+        <li><strong>A derived score</strong> — the overall score, confidence band, and eight dimension scores computed by the app's on-device scoring engine.</li>
     </ul>
-    
-    <h2>How We Use Your Information</h2>
-    <p>Your information is used solely to:</p>
+    <p>The app does <strong>not</strong> collect: raw camera frames or depth maps after scoring completes; face images in your scan history; biometric templates (no Face ID data is ever accessed — Face ID is handled solely by the operating system); or any identifiers linked to your face.</p>
+
+    <h2>3. Face Data — Use</h2>
+    <p>The face data described in Section 2 is used for one purpose only: to produce your jawline/facial scores and personal progress history inside the app. It is never used for advertising, profiling, or identification.</p>
+
+    <h2>4. Face Data — Storage and Retention</h2>
+    <p>Only the <strong>numerical measurements and scores</strong> (no images, no raw frames) are stored, in the app's local database (SwiftData) on your device. They are retained until you delete them (delete a scan result in Trends, delete a habit entry, or use Take a Break) or until you uninstall the app, at which point all data is permanently removed from your device. Nothing is stored in the cloud.</p>
+    <p>Camera frames, depth maps, and the in-memory preview image exist only transiently during a scan/session and are discarded from memory when the session ends or the app terminates.</p>
+
+    <h2>5. Face Data — Sharing With Third Parties</h2>
+    <p>By default, face data <strong>never leaves your device</strong>. There are exactly two user-initiated exceptions:</p>
     <ul>
-        <li>Provide and improve our services</li>
-        <li>Fix bugs and technical issues</li>
-        <li>Understand user preferences</li>
+        <li><strong>Optional Deep Analysis with your own DeepSeek API key.</strong> If — and only if — you enter your personal DeepSeek API key in Settings and then tap "Deep Analysis" on a result and confirm the per-request dialog ("Send a photo to DeepSeek? Your face data will leave your device this one time."), the app sends the single captured preview photo to DeepSeek's API (api.deepseek.com) to generate coaching text. The photo is sent over HTTPS directly from your device to DeepSeek using your own key; JawScore has no server and never sees it. DeepSeek's handling of that request is governed by DeepSeek's own privacy policy. The app does not retain the photo after the request, and no analysis happens without your explicit confirmation each time.</li>
+        <li><strong>Saving your result card to your photo library.</strong> If you tap the save button on the result card, the rendered card image is saved to your own photo library at your request (using the standard iOS "Add to Photos" permission). Nothing is uploaded.</li>
     </ul>
-    
-    <h2>Data Storage</h2>
-    <p>All data is stored locally on your device unless you explicitly enable cloud sync.</p>
-    
-    <h2>Third-Party Services</h2>
-    <p>We do not share your data with third parties.</p>
-    
+    <p>Apart from the two opt-in actions above, JawScore does not sell, rent, or share face data or any other data with any third party. The app contains no analytics, advertising, or tracking SDKs. The optional "Contact Support" form sends only the text you type (subject, name, email, message) to the support endpoint — never any photo or face data.</p>
+
+    <h2>6. Face Data — Deletion</h2>
+    <p>You can delete individual scan records from the Trends tab at any time, which removes the associated measurements from the local database. Uninstalling the app deletes all locally stored data, including all measurements and scores, permanently. For the optional DeepSeek request, retention of the transmitted photo is governed by DeepSeek's privacy policy (https://www.deepseek.com/en/privacy); JawScore itself retains no copy.</p>
+
+    <h2>7. Permissions</h2>
+    <ul>
+        <li><strong>Camera (NSCameraUsageDescription)</strong> — used only for the live 3D scan. Frames are used for the scan and then discarded.</li>
+        <li><strong>Add to Photo Library (NSPhotoLibraryAddUsageDescription)</strong> — used only when you explicitly save a result card.</li>
+        <li><strong>Notifications</strong> — optional weekly rescan reminder, delivered locally on-device.</li>
+    </ul>
+
+    <h2>8. Other Data</h2>
+    <p>All other data (habits, plan entries, settings, your BYO API key) is stored locally on your device. Your DeepSeek API key, if you provide one, is stored in the device Keychain and is sent only to api.deepseek.com when you trigger a Deep Analysis. If you use the Contact Support form, the text fields you submit are delivered to the support team to answer your request.</p>
+
+    <h2>9. Children</h2>
+    <p>JawScore is not directed at children under 13 and does not knowingly collect data from children.</p>
+
+    <h2>10. Changes to This Policy</h2>
+    <p>If we make changes to this policy, we will update the "Last updated" date above and publish the new policy at this page.</p>
+
+    <div class="contact">
     <h2>Contact Us</h2>
-    <p>If you have questions about this privacy policy, contact us at <a href="mailto:iocompile67692@gmail.com">iocompile67692@gmail.com</a></p>
+    <p>If you have questions about this privacy policy or the app's face data practices, contact us at <a href="mailto:iocompile67692@gmail.com">iocompile67692@gmail.com</a>.</p>
+    </div>
 </body>
 </html>
