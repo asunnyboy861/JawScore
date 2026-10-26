@@ -182,23 +182,36 @@ struct ScanView: View {
                 }
                 .padding(.top, 24)
 
-                Button {
-                    viewModel.beginScan()
-                } label: {
-                    Text("Start Scan")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 6)
+                // 3D Scan (ARKit TrueDepth) — always visible so the feature is
+                // discoverable on every device; disabled where unavailable.
+                VStack(spacing: 6) {
+                    Button {
+                        viewModel.beginScan()
+                    } label: {
+                        Label("3D Scan", systemImage: "faceid")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 6)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color.jsTeal)
+                    .foregroundStyle(.black)
+                    .disabled(!viewModel.usesAR)
+                    .accessibilityLabel("3D depth scan")
+                    .accessibilityHint(viewModel.usesAR ? "Starts a live 3D face scan" : "Requires a TrueDepth camera")
+
+                    if !viewModel.usesAR {
+                        Text("Requires a TrueDepth camera (iPhone X or later). This device uses Photo Scan below.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(Color.jsTeal)
-                .foregroundStyle(.black)
-                .accessibilityLabel("Start face scan")
 
                 Button {
                     viewModel.startPhotoMode()
                 } label: {
-                    Label("Import Photo", systemImage: "photo.on.rectangle")
+                    Label("Photo Scan", systemImage: "photo.on.rectangle")
                         .font(.subheadline.weight(.semibold))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 6)

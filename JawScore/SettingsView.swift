@@ -167,6 +167,12 @@ struct SettingsView: View {
                 Label("Support", systemImage: "questionmark.circle")
             }
             .tint(Color.jsTeal)
+            NavigationLink {
+                FaceDataPrivacyView()
+            } label: {
+                Label("Face Data & Privacy", systemImage: "face.dashed")
+            }
+            .tint(Color.jsTeal)
             Link(destination: URL(string: "https://asunnyboy861.github.io/JawScore/privacy.html")!) {
                 Label("Privacy Policy", systemImage: "hand.raised")
             }
